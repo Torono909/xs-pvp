@@ -79,7 +79,6 @@ public class ModuleManager
         this.modules.add(new Step());
         this.modules.add(new Flight());
         this.modules.add(new Scaffold());
-        this.modules.add(new PacketFly());
         this.modules.add(new FastPlace());
         this.modules.add(new ESP());
         this.modules.add(new Selftrap());
@@ -87,6 +86,10 @@ public class ModuleManager
         this.modules.add(new AutoMinecart());
         this.modules.add(new SelfFill());
         this.modules.add(new ArrowESP());
+        this.modules.add(new PenisESP());
+        this.modules.add(new EXPFast());
+        this.modules.add(new BurrowESP());
+        this.modules.add(new AutoLog());
     }
 
     public Module getModuleByName(String name) {

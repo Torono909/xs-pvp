@@ -287,7 +287,7 @@ public class RenderUtil
         }
     }
 
-    public static void drawText(AxisAlignedBB pos, String text) {
+    public static void drawText(BlockPos pos, String text) {
         GlStateManager.pushMatrix();
         RenderUtil.glBillboardDistanceScaled((float) pos.getX() + 0.5f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.5f, RenderUtil.mc.player, 1.0f);
         GlStateManager.disableDepth();

@@ -70,7 +70,7 @@ public class BurrowESP
     void lambda$onRender3D$8(Map.Entry entry) {
         this.renderBurrowedBlock((BlockPos) entry.getValue());
         if (this.name.getValue()) {
-            RenderUtil.drawText(new AxisAlignedBB((BlockPos) entry.getValue()), ((EntityPlayer) entry.getKey()).getGameProfile().getName());
+            RenderUtil.drawText(new BlockPos((BlockPos) entry.getValue()), ((EntityPlayer) entry.getKey()).getGameProfile().getName());
         }
     }
 
