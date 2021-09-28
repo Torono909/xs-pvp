@@ -8,11 +8,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
-@Mod(modid = "oyvey", name = "OyVey", version = "0.0.3")
+@Mod(modid = "oyvey", name = "OyVey", version = "0.0.4")
 public class OyVey {
     public static final String MODID = "oyvey";
     public static final String MODNAME = "OyVey";
-    public static final String MODVER = "0.0.3";
+    public static final String MODVER = "0.0.4";
     public static final Logger LOGGER = LogManager.getLogger("OyVey");
     public static CommandManager commandManager;
     public static FriendManager friendManager;
@@ -120,7 +120,7 @@ public class OyVey {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        Display.setTitle("OyVey v0.0.3");
+        Display.setTitle("OyVey v0.0.4");
         OyVey.load();
     }
 }
