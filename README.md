@@ -4,6 +4,8 @@ buildable SRC for OyVey client v0.0.3 (not to be confused with the version that 
 
 ## Changelog:
 
+* Added Burrow
+* Added ViewModel
 * Added AutoLog
 * Added EXPFast
 * Added BurrowESP
