@@ -108,7 +108,7 @@ public class OyVey {
         if (!unloaded) {
             eventManager.onUnload();
             moduleManager.onUnload();
-            configManager.saveConfig(   OyVey.configManager.config.replaceFirst("oyvey/", ""));
+            configManager.saveConfig(OyVey.configManager.config.replaceFirst("oyvey/", ""));
             moduleManager.onUnloadPost();
             unloaded = true;
         }
