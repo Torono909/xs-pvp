@@ -31,6 +31,7 @@ public class OyVey {
     public static ServerManager serverManager;
     public static EventManager eventManager;
     public static TextManager textManager;
+
     @Mod.Instance
     public static OyVey INSTANCE;
     private static boolean unloaded;
@@ -40,7 +41,7 @@ public class OyVey {
     }
 
     public static void load() {
-        LOGGER.info("\n\nLoading OyVey by Alpha432");
+        LOGGER.info("\n\nLoading OyVey Continued By Oyvey Dev Team");
         unloaded = false;
         if (reloadManager != null) {
             reloadManager.unload();
@@ -74,7 +75,7 @@ public class OyVey {
     }
 
     public static void unload(boolean unload) {
-        LOGGER.info("\n\nUnloading OyVey by Alpha432");
+        LOGGER.info("\n\nUnloading OyVey Continued By Oyvey Dev Team");
         if (unload) {
             reloadManager = new ReloadManager();
             reloadManager.init(commandManager != null ? commandManager.getPrefix() : ".");
@@ -107,7 +108,7 @@ public class OyVey {
         if (!unloaded) {
             eventManager.onUnload();
             moduleManager.onUnload();
-            configManager.saveConfig(OyVey.configManager.config.replaceFirst("oyvey/", ""));
+            configManager.saveConfig(   OyVey.configManager.config.replaceFirst("oyvey/", ""));
             moduleManager.onUnloadPost();
             unloaded = true;
         }
@@ -115,7 +116,7 @@ public class OyVey {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        LOGGER.info("I am gona gas you kike - Alpha432");
+        LOGGER.info("Rwah is daddy -FaxHack");
     }
 
     @Mod.EventHandler
