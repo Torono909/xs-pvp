@@ -8,11 +8,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 @Mod(modid = "oyvey", name = "OyVey", version = "0.0.5")
 public class OyVey {
     public static final String MODID = "oyvey";
     public static final String MODNAME = "OyVey";
     public static final String MODVER = "0.0.5";
+<<<<<<< Updated upstream
+=======
+
+@Mod(modid = "oyvey", name = "OyVey", version = "0.0.5")
+public class OyVey {
+    public static final String MODID = "oyvey";
+    public static final String MODNAME = "OyVey";
+    public static final String MODVER = "0.0.5";
+
+>>>>>>> Stashed changes
     public static final Logger LOGGER = LogManager.getLogger("OyVey");
     public static CommandManager commandManager;
     public static FriendManager friendManager;
@@ -40,7 +54,7 @@ public class OyVey {
     }
 
     public static void load() {
-        LOGGER.info("\n\nLoading OyVey by Alpha432");
+        LOGGER.info("\n\nLoading OyVey Continued By Oyvey Dev Team");
         unloaded = false;
         if (reloadManager != null) {
             reloadManager.unload();
@@ -74,7 +88,7 @@ public class OyVey {
     }
 
     public static void unload(boolean unload) {
-        LOGGER.info("\n\nUnloading OyVey by Alpha432");
+        LOGGER.info("\n\nUnloading OyVey Continued By Oyvey Dev Team");
         if (unload) {
             reloadManager = new ReloadManager();
             reloadManager.init(commandManager != null ? commandManager.getPrefix() : ".");
@@ -115,11 +129,18 @@ public class OyVey {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        LOGGER.info("I am gona gas you kike - Alpha432");
+        LOGGER.info("Rwah is daddy -FaxHack");
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
+<<<<<<< Updated upstream
+=======
+
+    }
+        Display.setTitle("OyVey v0.0.5");
+
+>>>>>>> Stashed changes
         Display.setTitle("OyVey v0.0.5");
         OyVey.load();
     }
