@@ -8,4 +8,6 @@ buildable SRC for OyVey client v0.0.3 (not to be confused with the version that 
 * Added EXPFast
 * Added BurrowESP
 * Added PenisESP
+* Added Burrow
+* Added ViewModel
 * Deleted PacketFly, reason: empty and useless code :P
