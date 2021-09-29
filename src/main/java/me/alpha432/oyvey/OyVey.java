@@ -96,7 +96,7 @@ public class OyVey {
         inventoryManager = null;
         moduleManager = null;
         textManager = null;
-        LOGGER.info("OyVey unloaded!\n");
+        LOGGER.info("ChickenSandwich.cc unloaded!\n");
     }
 
     public static void reload() {
