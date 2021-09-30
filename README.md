@@ -10,4 +10,7 @@ buildable SRC for OyVey client v0.0.3 (not to be confused with the version that 
 * Added PenisESP
 * Added Burrow
 * Added ViewModel
+* Fixed AutoCrystal
+* Added AutoFeetPlace (Sexy Surround)
+* Added PopChams
 * Deleted PacketFly, reason: empty and useless code :P
