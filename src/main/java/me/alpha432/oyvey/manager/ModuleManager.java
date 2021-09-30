@@ -92,6 +92,7 @@ public class ModuleManager
         this.modules.add(new AutoLog());
         this.modules.add(new Burrow());
         this.modules.add(new ViewModel());
+        this.modules.add(new SurroundRewrite());
     }
 
     public Module getModuleByName(String name) {

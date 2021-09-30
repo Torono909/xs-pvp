@@ -2,6 +2,8 @@ package me.alpha432.oyvey.util;
 
 public class Timer {
     private long time = -1L;
+    private long current;
+
 
     public boolean passedS(double s) {
         return this.getMs(System.nanoTime() - this.time) >= (long) (s * 1000.0);
@@ -41,6 +43,10 @@ public class Timer {
 
     public long getMs(long time) {
         return time / 1000000L;
+    }
+
+    public boolean passed(final long delay) {
+        return System.currentTimeMillis() - this.current >= delay;
     }
 }
 

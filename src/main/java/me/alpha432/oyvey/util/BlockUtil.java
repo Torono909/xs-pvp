@@ -12,15 +12,15 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +35,15 @@ public class BlockUtil
     public static final List<Block> shulkerList = Arrays.asList(Blocks.WHITE_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX, Blocks.YELLOW_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX, Blocks.SILVER_SHULKER_BOX, Blocks.CYAN_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX, Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX, Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX);
     public static final List<Block> unSafeBlocks = Arrays.asList(Blocks.OBSIDIAN, Blocks.BEDROCK, Blocks.ENDER_CHEST, Blocks.ANVIL);
     public static List<Block> unSolidBlocks = Arrays.asList(Blocks.FLOWING_LAVA, Blocks.FLOWER_POT, Blocks.SNOW, Blocks.CARPET, Blocks.END_ROD, Blocks.SKULL, Blocks.FLOWER_POT, Blocks.TRIPWIRE, Blocks.TRIPWIRE_HOOK, Blocks.WOODEN_BUTTON, Blocks.LEVER, Blocks.STONE_BUTTON, Blocks.LADDER, Blocks.UNPOWERED_COMPARATOR, Blocks.POWERED_COMPARATOR, Blocks.UNPOWERED_REPEATER, Blocks.POWERED_REPEATER, Blocks.UNLIT_REDSTONE_TORCH, Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WIRE, Blocks.AIR, Blocks.PORTAL, Blocks.END_PORTAL, Blocks.WATER, Blocks.FLOWING_WATER, Blocks.LAVA, Blocks.FLOWING_LAVA, Blocks.SAPLING, Blocks.RED_FLOWER, Blocks.YELLOW_FLOWER, Blocks.BROWN_MUSHROOM, Blocks.RED_MUSHROOM, Blocks.WHEAT, Blocks.CARROTS, Blocks.POTATOES, Blocks.BEETROOTS, Blocks.REEDS, Blocks.PUMPKIN_STEM, Blocks.MELON_STEM, Blocks.WATERLILY, Blocks.NETHER_WART, Blocks.COCOA, Blocks.CHORUS_FLOWER, Blocks.CHORUS_PLANT, Blocks.TALLGRASS, Blocks.DEADBUSH, Blocks.VINE, Blocks.FIRE, Blocks.RAIL, Blocks.ACTIVATOR_RAIL, Blocks.DETECTOR_RAIL, Blocks.GOLDEN_RAIL, Blocks.TORCH);
+
+
+    public enum ValidResult {
+        NoEntityCollision,
+        AlreadyBlockThere,
+        NoNeighbors,
+        Ok,
+    }
+
 
     public static List<BlockPos> getBlockSphere(float breakRange, Class clazz) {
         NonNullList positions = NonNullList.create();
@@ -139,21 +148,29 @@ public class BlockUtil
         }
         BlockPos neighbour = pos.offset(side);
         EnumFacing opposite = side.getOpposite();
+
         Vec3d hitVec = new Vec3d(neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
-        Block neighbourBlock = BlockUtil.mc.world.getBlockState(neighbour).getBlock();
-        if (!BlockUtil.mc.player.isSneaking() && (blackList.contains(neighbourBlock) || shulkerList.contains(neighbourBlock))) {
-            BlockUtil.mc.player.connection.sendPacket(new CPacketEntityAction(BlockUtil.mc.player, CPacketEntityAction.Action.START_SNEAKING));
-            BlockUtil.mc.player.setSneaking(true);
-            sneaking = true;
+        if (!mc.player.isSneaking()) {
+            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            mc.player.setSneaking(true);
         }
+
         if (rotate) {
-            RotationUtil.faceVector(hitVec, true);
+            faceVector(hitVec, true);
         }
-        BlockUtil.rightClickBlock(neighbour, hitVec, hand, opposite, packet);
-        BlockUtil.mc.player.swingArm(EnumHand.MAIN_HAND);
-        BlockUtil.mc.rightClickDelayTimer = 4;
-        return sneaking || isSneaking;
+
+        rightClickBlock(neighbour, hitVec, hand, opposite, packet);
+        mc.player.swingArm(EnumHand.MAIN_HAND);
+        mc.rightClickDelayTimer = 4; //?
+        return true;
     }
+
+    public static void faceVector(Vec3d vec, boolean normalizeAngle) {
+        float[] rotations = getLegitRotations(vec);
+        mc.player.connection.sendPacket(new CPacketPlayer.Rotation(rotations[0], normalizeAngle ? MathHelper.normalizeAngle((int) rotations[1], 360) : rotations[1], mc.player.onGround));
+    }
+
+
 
     public static boolean placeBlockSmartRotate(BlockPos pos, EnumHand hand, boolean rotate, boolean packet, boolean isSneaking) {
         boolean sneaking = false;
@@ -239,6 +256,40 @@ public class BlockUtil
         positions.addAll(BlockUtil.getSphere(EntityUtil.getPlayerPos(BlockUtil.mc.player), placeRange, (int) placeRange, false, true, 0).stream().filter(pos -> BlockUtil.canPlaceCrystal(pos, specialEntityCheck)).collect(Collectors.toList()));
         return positions;
     }
+
+    public static List<BlockPos> possiblePlacePositions(float placeRange, boolean specialEntityCheck, boolean oneDot15) {
+        NonNullList positions = NonNullList.create();
+        positions.addAll(BlockUtil.getSphere(EntityUtil.getPlayerPos(BlockUtil.mc.player), placeRange, (int) placeRange, false, true, 0).stream().filter(pos -> BlockUtil.canPlaceCrystal(pos, specialEntityCheck, oneDot15)).collect(Collectors.toList()));
+        return positions;
+    }
+
+    public static boolean canPlaceCrystal(BlockPos blockPos, boolean specialEntityCheck, boolean oneDot15) {
+        BlockPos boost = blockPos.add(0, 1, 0);
+        BlockPos boost2 = blockPos.add(0, 2, 0);
+        try {
+            if (BlockUtil.mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && BlockUtil.mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
+                return false;
+            }
+            if (!oneDot15 && BlockUtil.mc.world.getBlockState(boost2).getBlock() != Blocks.AIR || BlockUtil.mc.world.getBlockState(boost).getBlock() != Blocks.AIR) {
+                return false;
+            }
+            for (Entity entity : BlockUtil.mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
+                if (entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal) continue;
+                return false;
+            }
+            if (!oneDot15) {
+                for (Entity entity : BlockUtil.mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
+                    if (entity.isDead || specialEntityCheck && entity instanceof EntityEnderCrystal) continue;
+                    return false;
+                }
+            }
+        }
+        catch (Exception ignored) {
+            return false;
+        }
+        return true;
+    }
+
 
     public static boolean canPlaceCrystal(BlockPos blockPos, boolean specialEntityCheck) {
         block7:
@@ -393,5 +444,162 @@ public class BlockUtil
     public static boolean rayTracePlaceCheck(BlockPos pos) {
         return BlockUtil.rayTracePlaceCheck(pos, true);
     }
-}
 
+    public static void placeBlock(BlockPos pos) {
+        Vec3d eyesPos = new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ);
+        for (EnumFacing side : EnumFacing.values()) {
+            BlockPos neighbor = pos.offset(side);
+            EnumFacing side2 = side.getOpposite();
+            if (canBeClicked(neighbor)) {
+                Vec3d hitVec = (new Vec3d((Vec3i) neighbor)).add(0.5D, 0.5D, 0.5D).add((new Vec3d(side2.getDirectionVec())).scale(0.5D));
+                if (eyesPos.squareDistanceTo(hitVec) <= 18.0625D) {
+                    faceVectorPacketInstant(hitVec);
+                    processRightClickBlock(neighbor, side2, hitVec);
+                    mc.player.swingArm(EnumHand.MAIN_HAND);
+                    mc.rightClickDelayTimer = 4;
+
+                    return;
+                }
+            }
+        }
+    }
+
+    public static void faceVectorPacketInstant(Vec3d vec) {
+        float[] rotations = getLegitRotations(vec);
+        (mc.player).connection.sendPacket((Packet) new CPacketPlayer.Rotation(rotations[0], rotations[1],
+                (mc.player).onGround));
+    }
+
+    private static float[] getLegitRotations(Vec3d vec) {
+        Vec3d eyesPos = getEyesPos();
+        double diffX = vec.x - eyesPos.x;
+        double diffY = vec.y - eyesPos.y;
+        double diffZ = vec.z - eyesPos.z;
+        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
+        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F;
+        float pitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
+        return new float[]{(mc.player.rotationYaw + MathHelper.wrapDegrees(yaw - mc.player.rotationYaw)), mc.player.rotationPitch + MathHelper.wrapDegrees(pitch - mc.player.rotationPitch)}; // test
+    }
+
+    private static Vec3d getEyesPos() {
+        return new Vec3d((mc.player).posX,
+                (mc.player).posY + mc.player.getEyeHeight(),
+                (mc.player).posZ);
+    }
+
+    private static void processRightClickBlock(BlockPos pos, EnumFacing side, Vec3d hitVec) {
+        mc.playerController.processRightClickBlock(mc.player, mc.world, pos, side, hitVec, EnumHand.MAIN_HAND);
+    }
+
+    public static List<Vec3d> getUnsafeBlocks(Entity entity, int height, boolean floor) {
+        return getUnsafeBlocksFromVec3d(entity.getPositionVector(), height, floor);
+    }
+
+    public static List<Vec3d> getUnsafeBlocksFromVec3d(Vec3d pos, int height, boolean floor) {
+        final List<Vec3d> vec3ds = new ArrayList<>(floor ? 5 : 4);
+        for (final Vec3d vector : BlockUtil.getOffsets(height, floor)) {
+            final Block block = mc.world.getBlockState(new BlockPos(pos).add(vector.x, vector.y, vector.z)).getBlock();
+            if (block instanceof BlockAir || block instanceof BlockLiquid || block instanceof BlockTallGrass || block instanceof BlockFire || block instanceof BlockDeadBush || block instanceof BlockSnow) {
+                vec3ds.add(vector);
+            }
+        }
+        return vec3ds;
+    }
+
+    public static Vec3d[] getOffsets(int y, boolean floor) {
+        final List<Vec3d> offsets = getOffsetList(y, floor);
+        final Vec3d[] array = new Vec3d[offsets.size()];
+        return offsets.toArray(array);
+    }
+
+    public static List<Vec3d> getOffsetList(int y, boolean floor) {
+        final List<Vec3d> offsets = new ArrayList<>(floor ? 5 : 4);
+        offsets.add(new Vec3d(-1, y, 0));
+        offsets.add(new Vec3d(1, y, 0));
+        offsets.add(new Vec3d(0, y, -1));
+        offsets.add(new Vec3d(0, y, 1));
+
+        if (floor) {
+            offsets.add(new Vec3d(0, y - 1, 0));
+        }
+
+        return offsets;
+    }
+
+    public static Vec3d[] getUnsafeBlockArray(Entity entity, int height, boolean floor) {
+        final List<Vec3d> list = getUnsafeBlocks(entity, height, floor);
+        final Vec3d[] array = new Vec3d[list.size()];
+        return list.toArray(array);
+    }
+
+    public static boolean isSafe(Entity entity, int height, boolean floor) {
+        return getUnsafeBlocks(entity, height, floor).size() == 0;
+    }
+
+    public static void placeCrystalOnBlock(BlockPos pos, EnumHand hand, boolean swing, boolean exactHand) {
+        RayTraceResult result = BlockUtil.mc.world.rayTraceBlocks(new Vec3d(BlockUtil.mc.player.posX, BlockUtil.mc.player.posY + (double) BlockUtil.mc.player.getEyeHeight(), BlockUtil.mc.player.posZ), new Vec3d((double) pos.getX() + 0.5, (double) pos.getY() - 0.5, (double) pos.getZ() + 0.5));
+        EnumFacing facing = result == null || result.sideHit == null ? EnumFacing.UP : result.sideHit;
+        BlockUtil.mc.player.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(pos, facing, hand, 0.0f, 0.0f, 0.0f));
+        if (swing) {
+            BlockUtil.mc.player.connection.sendPacket(new CPacketAnimation(exactHand ? hand : EnumHand.MAIN_HAND));
+        }
+    }
+
+    public static ValidResult valid(BlockPos pos) {
+        // There are no entities to block placement,
+        if (!mc.world.checkNoEntityCollision(new AxisAlignedBB(pos)))
+            return ValidResult.NoEntityCollision;
+
+        if (!checkForNeighbours(pos))
+            return ValidResult.NoNeighbors;
+
+        IBlockState l_State = mc.world.getBlockState(pos);
+
+        if (l_State.getBlock() == Blocks.AIR) {
+            final BlockPos[] l_Blocks =
+                    { pos.north(), pos.south(), pos.east(), pos.west(), pos.up(), pos.down() };
+
+            for (BlockPos l_Pos : l_Blocks) {
+                IBlockState l_State2 = mc.world.getBlockState(l_Pos);
+
+                if (l_State2.getBlock() == Blocks.AIR)
+                    continue;
+
+                for (final EnumFacing side : EnumFacing.values()) {
+                    final BlockPos neighbor = pos.offset(side);
+
+                    if (mc.world.getBlockState(neighbor).getBlock().canCollideCheck(mc.world.getBlockState(neighbor), false)) {
+                        return ValidResult.Ok;
+                    }
+                }
+            }
+
+            return ValidResult.NoNeighbors;
+        }
+
+        return ValidResult.AlreadyBlockThere;
+    }
+
+    public static boolean checkForNeighbours(final BlockPos blockPos) {
+        if (!hasNeighbour(blockPos)) {
+            for (final EnumFacing side : EnumFacing.values()) {
+                final BlockPos neighbour = blockPos.offset(side);
+                if (hasNeighbour(neighbour)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean hasNeighbour(final BlockPos blockPos) {
+        for (final EnumFacing side : EnumFacing.values()) {
+            final BlockPos neighbour = blockPos.offset(side);
+            if (!mc.world.getBlockState(neighbour).getMaterial().isReplaceable()) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

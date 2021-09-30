@@ -1,6 +1,7 @@
 package me.alpha432.oyvey.util;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -107,6 +108,29 @@ public class MathUtil
             result.put(entry.getKey(), entry.getValue());
         }
         return result;
+    }
+
+    public static Vec3d extrapolatePlayerPosition(EntityPlayer player, int ticks) {
+        Vec3d lastPos = new Vec3d(player.lastTickPosX, player.lastTickPosY, player.lastTickPosZ);
+        Vec3d currentPos = new Vec3d(player.posX, player.posY, player.posZ);
+        double distance = MathUtil.multiply(player.motionX) + MathUtil.multiply(player.motionY) + MathUtil.multiply(player.motionZ);
+        Vec3d tempVec = MathUtil.calculateLine(lastPos, currentPos, distance * (double) ticks);
+        return new Vec3d(tempVec.x, player.posY, tempVec.z);
+    }
+
+    public static double multiply(double one) {
+        return one * one;
+    }
+
+    public static Vec3d calculateLine(Vec3d x1, Vec3d x2, double distance) {
+        double length = Math.sqrt(MathUtil.multiply(x2.x - x1.x) + MathUtil.multiply(x2.y - x1.y) + MathUtil.multiply(x2.z - x1.z));
+        double unitSlopeX = (x2.x - x1.x) / length;
+        double unitSlopeY = (x2.y - x1.y) / length;
+        double unitSlopeZ = (x2.z - x1.z) / length;
+        double x = x1.x + unitSlopeX * distance;
+        double y = x1.y + unitSlopeY * distance;
+        double z = x1.z + unitSlopeZ * distance;
+        return new Vec3d(x, y, z);
     }
 
     public static String getTimeOfDay() {

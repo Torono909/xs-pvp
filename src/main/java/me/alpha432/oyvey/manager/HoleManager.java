@@ -73,5 +73,8 @@ public class HoleManager
         }
         return isSafe;
     }
+
+    public void settingChanged() {
+    }
 }
 

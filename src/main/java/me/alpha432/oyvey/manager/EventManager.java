@@ -28,6 +28,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EventManager extends Feature {
     private final Timer logoutTimer = new Timer();
@@ -39,6 +40,9 @@ public class EventManager extends Feature {
     public void onUnload() {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
+
+    private final AtomicBoolean tickOngoing = new AtomicBoolean(false);
+
 
     @SubscribeEvent
     public void onUpdate(LivingEvent.LivingUpdateEvent event) {
@@ -184,6 +188,10 @@ public class EventManager extends Feature {
     public void onKeyInput(InputEvent.KeyInputEvent event) {
         if (Keyboard.getEventKeyState())
             OyVey.moduleManager.onKeyPressed(Keyboard.getEventKey());
+    }
+
+    public boolean ticksOngoing() {
+        return this.tickOngoing.get();
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

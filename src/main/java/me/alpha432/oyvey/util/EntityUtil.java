@@ -2,6 +2,7 @@ package me.alpha432.oyvey.util;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import me.alpha432.oyvey.OyVey;
+import me.alpha432.oyvey.mixin.mixins.IEntityLivingBase;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -10,6 +11,7 @@ import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.monster.EntityIronGolem;
@@ -49,6 +51,8 @@ public class EntityUtil
     public static final Vec3d[] OffsetList = new Vec3d[]{new Vec3d(1.0, 1.0, 0.0), new Vec3d(-1.0, 1.0, 0.0), new Vec3d(0.0, 1.0, 1.0), new Vec3d(0.0, 1.0, -1.0), new Vec3d(0.0, 2.0, 0.0)};
     public static final Vec3d[] antiStepOffsetList = new Vec3d[]{new Vec3d(-1.0, 2.0, 0.0), new Vec3d(1.0, 2.0, 0.0), new Vec3d(0.0, 2.0, 1.0), new Vec3d(0.0, 2.0, -1.0)};
     public static final Vec3d[] antiScaffoldOffsetList = new Vec3d[]{new Vec3d(0.0, 3.0, 0.0)};
+    public static final Vec3d[] doubleLegOffsetList = new Vec3d[]{new Vec3d(-1.0, 0.0, 0.0), new Vec3d(1.0, 0.0, 0.0), new Vec3d(0.0, 0.0, -1.0), new Vec3d(0.0, 0.0, 1.0), new Vec3d(-2.0, 0.0, 0.0), new Vec3d(2.0, 0.0, 0.0), new Vec3d(0.0, 0.0, -2.0), new Vec3d(0.0, 0.0, 2.0)};
+
 
     public static void attackEntity(Entity entity, boolean packet, boolean swingArm) {
         if (packet) {
@@ -60,6 +64,7 @@ public class EntityUtil
             EntityUtil.mc.player.swingArm(EnumHand.MAIN_HAND);
         }
     }
+
 
     public static Vec3d interpolateEntity(Entity entity, float time) {
         return new Vec3d(entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) time, entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) time, entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) time);
@@ -648,6 +653,54 @@ public class EntityUtil
 
     public static boolean isAboveBlock(Entity entity, BlockPos blockPos) {
         return entity.posY >= (double) blockPos.getY();
+    }
+
+    public static void swingArmNoPacket(final EnumHand hand, final EntityLivingBase entity) {
+        final ItemStack stack = entity.getHeldItem(hand);
+        if (!stack.isEmpty() && stack.getItem().onEntitySwing(entity, stack)) {
+            return;
+        }
+        if (!entity.isSwingInProgress || entity.swingProgressInt >= ((IEntityLivingBase) entity).getArmSwingAnimationEnd() / 2 || entity.swingProgressInt < 0) {
+            entity.swingProgressInt = -1;
+            entity.isSwingInProgress = true;
+            entity.swingingHand = hand;
+        }
+    }
+
+    public static boolean isCrystalAtFeet(final EntityEnderCrystal crystal, final double range) {
+        for (final EntityPlayer player : EntityUtil.mc.world.playerEntities) {
+            if (EntityUtil.mc.player.getDistanceSq(player) > range * range) {
+                continue;
+            }
+            if (OyVey.friendManager.isFriend(player)) {
+                continue;
+            }
+            for (final Vec3d vec : EntityUtil.doubleLegOffsetList) {
+                if (new BlockPos(player.getPositionVector()).add(vec.x, vec.y, vec.z) == crystal.getPosition()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static java.util.List<BlockPos> getSphere(BlockPos loc, float r, int h, boolean hollow, boolean sphere, int plusY) {
+        List<BlockPos> circleBlocks = new ArrayList<>();
+        int cx = loc.getX();
+        int cy = loc.getY();
+        int cz = loc.getZ();
+        for (int x = cx - (int) r; x <= cx + r; x++) {
+            for (int z = cz - (int) r; z <= cz + r; z++) {
+                for (int y = (sphere ? cy - (int) r : cy); y < (sphere ? cy + r : cy + h); y++) {
+                    double dist = (cx - x) * (cx - x) + (cz - z) * (cz - z) + (sphere ? (cy - y) * (cy - y) : 0);
+                    if (dist < r * r && !(hollow && dist < (r - 1) * (r - 1))) {
+                        BlockPos l = new BlockPos(x, y + plusY, z);
+                        circleBlocks.add(l);
+                    }
+                }
+            }
+        }
+        return circleBlocks;
     }
 }
 

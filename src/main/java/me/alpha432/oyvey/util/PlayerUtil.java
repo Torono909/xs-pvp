@@ -8,8 +8,14 @@ import com.google.gson.JsonParser;
 import com.mojang.util.UUIDTypeAdapter;
 import me.alpha432.oyvey.features.command.Command;
 import net.minecraft.advancements.AdvancementManager;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockEnderChest;
+import net.minecraft.block.BlockObsidian;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import org.apache.commons.io.IOUtils;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -139,6 +145,10 @@ public class PlayerUtil implements Util {
         }
     }
 
+    public static BlockPos getPlayerPos() {
+        return new BlockPos(Math.floor(mc.player.posX), Math.floor(mc.player.posY), Math.floor(mc.player.posZ));
+    }
+
     public static class lookUpUUID implements Runnable {
         private final String name;
         private volatile UUID uuid;
@@ -234,5 +244,19 @@ public class PlayerUtil implements Util {
         public String getName() {
             return this.name;
         }
+    }
+
+    public static int findObiInHotbar() {
+        for (int i = 0; i < 9; ++i) {
+            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemBlock) {
+                final Block block = ((ItemBlock) stack.getItem()).getBlock();
+                if (block instanceof BlockEnderChest)
+                    return i;
+                else if (block instanceof BlockObsidian)
+                    return i;
+            }
+        }
+        return -1;
     }
 }

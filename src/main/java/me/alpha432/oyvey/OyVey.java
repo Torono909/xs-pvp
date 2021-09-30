@@ -8,11 +8,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
-@Mod(modid = "chickensandwich.cc", name = "ChickenSandwich.cc", version = "0.0.5")
+@Mod(modid = "ChickenSandwich.cc", name = "ChickenSandwich.cc", version = "0.0.6")
 public class OyVey {
-    public static final String MODID = "chickensandwich.cc";
+    public static final String MODID = "ChickenSandwich.cc";
     public static final String MODNAME = "ChickenSandwich.cc";
-    public static final String MODVER = "0.0.5";
+    public static final String MODVER = "0.0.6";
     public static final Logger LOGGER = LogManager.getLogger("ChickenSandwich.cc");
     public static CommandManager commandManager;
     public static FriendManager friendManager;
@@ -31,6 +31,9 @@ public class OyVey {
     public static ServerManager serverManager;
     public static EventManager eventManager;
     public static TextManager textManager;
+    public static PlayerManager playerManager;
+    public static SafetyManager safetyManager;
+
 
     @Mod.Instance
     public static OyVey INSTANCE;
@@ -41,7 +44,7 @@ public class OyVey {
     }
 
     public static void load() {
-        LOGGER.info("\n\nLoading ChickenSandwich.cc Continued By ChickenSandwich.cc Dev Team");
+        LOGGER.info("\n\nLoading ChickenSandwich.cc Continued By OyVey Dev Team");
         unloaded = false;
         if (reloadManager != null) {
             reloadManager.unload();
@@ -63,6 +66,8 @@ public class OyVey {
         positionManager = new PositionManager();
         configManager = new ConfigManager();
         holeManager = new HoleManager();
+        playerManager = new PlayerManager() ;
+        safetyManager = new SafetyManager();
         LOGGER.info("Managers loaded.");
         moduleManager.init();
         LOGGER.info("Modules loaded.");
@@ -71,11 +76,11 @@ public class OyVey {
         LOGGER.info("EventManager loaded.");
         textManager.init(true);
         moduleManager.onLoad();
-        LOGGER.info("OyVey successfully loaded!\n");
+        LOGGER.info("ChickenSandwich.cc successfully loaded!\n");
     }
 
     public static void unload(boolean unload) {
-        LOGGER.info("\n\nUnloading ChickenSandwich.cc Continued By ChickenSandwich.cc Dev Team");
+        LOGGER.info("\n\nUnloading ChickenSandwich.cc Continued By Oyvey Dev Team");
         if (unload) {
             reloadManager = new ReloadManager();
             reloadManager.init(commandManager != null ? commandManager.getPrefix() : ".");
@@ -96,6 +101,7 @@ public class OyVey {
         inventoryManager = null;
         moduleManager = null;
         textManager = null;
+        safetyManager = null;
         LOGGER.info("ChickenSandwich.cc unloaded!\n");
     }
 
@@ -108,7 +114,7 @@ public class OyVey {
         if (!unloaded) {
             eventManager.onUnload();
             moduleManager.onUnload();
-            configManager.saveConfig(OyVey.configManager.config.replaceFirst("chickensandwich/", ""));
+            configManager.saveConfig(OyVey.configManager.config.replaceFirst("oyvey/", ""));
             moduleManager.onUnloadPost();
             unloaded = true;
         }
@@ -116,13 +122,17 @@ public class OyVey {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        LOGGER.info("ChickenSandwich.cc strong -FaxHack");
+        LOGGER.info("Rwah is daddy -FaxHack");
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        Display.setTitle("ChickenSandwich.cc v0.0.5");
+        Display.setTitle("ChickenSandwich.cc v0.0.6");
         OyVey.load();
+    }
+
+    public PlayerManager getPlayerManager() {
+        return playerManager;
     }
 }
 

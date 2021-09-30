@@ -17,6 +17,7 @@ public class Setting<T> {
     private Predicate<T> visibility;
     private String description;
     private Feature feature;
+    private boolean shouldRenderStringName;
 
     public Setting(String name, T defaultValue) {
         this.name = name;
@@ -86,6 +87,18 @@ public class Setting<T> {
         this.value = defaultValue;
         this.visibility = visibility;
         this.plannedValue = defaultValue;
+    }
+
+    public Setting<T> setRenderName(boolean renderName) {
+        this.shouldRenderStringName = renderName;
+        return this;
+    }
+
+    public boolean shouldRenderName() {
+        if (!this.isStringSetting()) {
+            return true;
+        }
+        return this.shouldRenderStringName;
     }
 
     public String getName() {

@@ -144,10 +144,10 @@ public class Offhand
         if (this.holdingGapple) {
             this.gapples += Offhand.mc.player.inventory.offHandInventory.stream().filter(itemStack -> itemStack.getItem() == Items.GOLDEN_APPLE).mapToInt(ItemStack::getCount).sum();
         }
-        this.doSwitch();
+        this.doSwitch(false);
     }
 
-    public void doSwitch() {
+    public void doSwitch(boolean b) {
         this.currentMode = Mode2.TOTEMS;
         if (this.gapple.getValue().booleanValue() && Offhand.mc.player.getHeldItemMainhand().getItem() instanceof ItemSword && Offhand.mc.gameSettings.keyBindUseItem.isKeyDown()) {
             this.currentMode = Mode2.GAPPLES;
