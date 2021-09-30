@@ -8,12 +8,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
-@Mod(modid = "ChickenSandwich.cc", name = "ChickenSandwich.cc", version = "0.0.6")
+@Mod(modid = "ChickenSandwich.cc", name = "Oyvey", version = "0.0.6")
 public class OyVey {
-    public static final String MODID = "ChickenSandwich.cc";
-    public static final String MODNAME = "ChickenSandwich.cc";
+    public static final String MODID = "oyvey";
+    public static final String MODNAME = "Oyvey";
     public static final String MODVER = "0.0.6";
-    public static final Logger LOGGER = LogManager.getLogger("ChickenSandwich.cc");
+    public static final Logger LOGGER = LogManager.getLogger("Oyvey Continued");
     public static CommandManager commandManager;
     public static FriendManager friendManager;
     public static ModuleManager moduleManager;
@@ -44,7 +44,7 @@ public class OyVey {
     }
 
     public static void load() {
-        LOGGER.info("\n\nLoading ChickenSandwich.cc Continued By OyVey Dev Team");
+        LOGGER.info("\n\nLoading Oyvey Continued By OyVey Dev Team");
         unloaded = false;
         if (reloadManager != null) {
             reloadManager.unload();
@@ -80,7 +80,7 @@ public class OyVey {
     }
 
     public static void unload(boolean unload) {
-        LOGGER.info("\n\nUnloading ChickenSandwich.cc Continued By Oyvey Dev Team");
+        LOGGER.info("\n\nUnloading Oyvey Continued By Oyvey Dev Team");
         if (unload) {
             reloadManager = new ReloadManager();
             reloadManager.init(commandManager != null ? commandManager.getPrefix() : ".");
@@ -102,7 +102,7 @@ public class OyVey {
         moduleManager = null;
         textManager = null;
         safetyManager = null;
-        LOGGER.info("ChickenSandwich.cc unloaded!\n");
+        LOGGER.info("Oyvey unloaded!\n");
     }
 
     public static void reload() {
@@ -127,7 +127,7 @@ public class OyVey {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        Display.setTitle("ChickenSandwich.cc v0.0.6");
+        Display.setTitle("Oyvey v0.0.6");
         OyVey.load();
     }
 
