@@ -67,6 +67,7 @@ public class ModuleManager
         this.modules.add(new Tracker());
         this.modules.add(new PopCounter());
         this.modules.add(new Offhand());
+        this.modules.add(new BowMcBomb());
         this.modules.add(new Surround());
         this.modules.add(new AutoTrap());
         this.modules.add(new AutoWeb());
