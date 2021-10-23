@@ -1,5 +1,5 @@
 # OyVey-BUILDABLE_SRC
-![GitHub all releases](https://img.shields.io/github/downloads/FaxHack/SnowHack-Latest/total)
+![GitHub all releases](https://img.shields.io/github/downloads/FaxHack/Oyvey-Continued/total)
 
 ## Changelog:
 
