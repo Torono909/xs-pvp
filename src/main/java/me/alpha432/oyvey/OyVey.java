@@ -8,12 +8,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
-@Mod(modid = "ChickenSandwich.cc", name = "Oyvey", version = "0.0.6")
+@Mod(modid = "xs-pvp", name = "xs-pvp", version = "0.0.1")
 public class OyVey {
-    public static final String MODID = "oyvey";
-    public static final String MODNAME = "Oyvey";
-    public static final String MODVER = "0.0.6";
-    public static final Logger LOGGER = LogManager.getLogger("Oyvey Continued");
+    public static final String MODID = "xs-pvp";
+    public static final String MODNAME = "xs-pvp";
+    public static final String MODVER = "0.0.1";
+    public static final Logger LOGGER = LogManager.getLogger("xs-pvp");
     public static CommandManager commandManager;
     public static FriendManager friendManager;
     public static ModuleManager moduleManager;
@@ -44,7 +44,7 @@ public class OyVey {
     }
 
     public static void load() {
-        LOGGER.info("\n\nLoading Oyvey Continued By OyVey Dev Team");
+        LOGGER.info("\n\nLoading xs-pvp by Horizon");
         unloaded = false;
         if (reloadManager != null) {
             reloadManager.unload();
@@ -76,11 +76,11 @@ public class OyVey {
         LOGGER.info("EventManager loaded.");
         textManager.init(true);
         moduleManager.onLoad();
-        LOGGER.info("ChickenSandwich.cc successfully loaded!\n");
+        LOGGER.info("xp-pvp successfully loaded!\n");
     }
 
     public static void unload(boolean unload) {
-        LOGGER.info("\n\nUnloading Oyvey Continued By Oyvey Dev Team");
+        LOGGER.info("\n\nUnloading xs-pvp by Horizon");
         if (unload) {
             reloadManager = new ReloadManager();
             reloadManager.init(commandManager != null ? commandManager.getPrefix() : ".");
@@ -102,7 +102,7 @@ public class OyVey {
         moduleManager = null;
         textManager = null;
         safetyManager = null;
-        LOGGER.info("Oyvey unloaded!\n");
+        LOGGER.info("xs-pvp unloaded!\n");
     }
 
     public static void reload() {
@@ -127,7 +127,7 @@ public class OyVey {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        Display.setTitle("Oyvey v0.0.6");
+        Display.setTitle("xs-pvp - v0.0.1");
         OyVey.load();
     }
 
