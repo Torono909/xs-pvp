@@ -13,3 +13,5 @@
 * Added SurroundRewrite (Sexy Surround)
 * Added PopChams
 * Deleted PacketFly, reason: empty and useless code :P
+## Credit:
+Credit to xs1_av for creation of the original client.
